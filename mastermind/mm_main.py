@@ -2,10 +2,9 @@ from mm_functions import *
 
 # main code
 if __name__ == "__main__":
-
     kleuren = ("R", "G", "B", "O", "P", "W")
-    antwoord = Choose4Colors(kleuren)
-    PlayGame(antwoord)
+    antwoord, gameid = Choose4Colors(kleuren)
+    PlayGame(antwoord, gameid)
 
 
 # What does if __name__ == "__main__": do?

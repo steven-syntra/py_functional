@@ -1,4 +1,5 @@
 import random
+import mm_database
 
 
 # 4 willekeurige kleuren (uit kleuren) kiezen
@@ -6,26 +7,31 @@ def Choose4Colors(kleuren):
     antwoord = []
     for i in range(4):
         antwoord.append(kleuren[random.randint(0, 5)])
-    return antwoord
+
+    gameid = mm_database.DB_InsertGameinDB(antwoord)
+    return antwoord, gameid
 
 
 # input vragen aan speler
-def GetInputFromUser():
+def GetInputFromUser(userinput):
     gok = input("Doe een nieuwe gok: ").strip()
-    return gok
+    userinput += ''.join(gok) + '|'
+    return gok, userinput
 
 
 # stoppen als de gebruiker het spel vroegtijdig beu is
-def UserWantsToQuitEarly(gok, antwoord):
+def UserWantsToQuitEarly(gok, antwoord, gameid, userinput):
     if gok.upper() == "STOP":
-        print( f"Jammer! Het juiste antwoord was: {antwoord}")
+        print( f"Jammer! Het juiste antwoord was: {antwoord}" )
+        mm_database.DB_CancelGameInDB(gameid, userinput)
         return True
 
     return False
 
 
 # spel beëindigen als alles gevonden is
-def SolutionFoundEndGame(antwoord):
+def SolutionFoundEndGame(antwoord, gameid, userinput):
+    mm_database.DB_FinishGameInDB(gameid, userinput)
     print("Proficiat!")
     print( f"Het juiste antwoord was: { antwoord }")
 
@@ -64,19 +70,21 @@ def GiveFeedback(juiste_plaatsen, foute_plaatsen):
 
 
 # hoofdprocedure spel
-def PlayGame(antwoord):
+def PlayGame(antwoord, gameid):
+
+    userinput = ""
 
     while True:
-        gok = GetInputFromUser()
+        gok, userinput = GetInputFromUser(userinput)
 
-        if UserWantsToQuitEarly(gok, antwoord):
+        if UserWantsToQuitEarly(gok, antwoord, gameid, userinput):
             break
-        else:
-            juiste_plaatsen, antwoord_kopie, gok_kopie = FindColorsOnRightPosition(antwoord, gok)
 
-            if juiste_plaatsen == 4:
-                SolutionFoundEndGame(antwoord)
-                break
-            else:
-                foute_plaatsen = FindColorsOnWrongPosition(antwoord_kopie, gok_kopie)
-                GiveFeedback(juiste_plaatsen, foute_plaatsen)
+        juiste_plaatsen, antwoord_kopie, gok_kopie = FindColorsOnRightPosition(antwoord, gok)
+
+        if juiste_plaatsen == 4:
+            SolutionFoundEndGame(antwoord, gameid, userinput)
+            break
+
+        foute_plaatsen = FindColorsOnWrongPosition(antwoord_kopie, gok_kopie)
+        GiveFeedback(juiste_plaatsen, foute_plaatsen)
