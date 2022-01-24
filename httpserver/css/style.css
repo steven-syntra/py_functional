@@ -1,0 +1,14 @@
+* {
+    font-family: Segoe UI, Verdana, serif;
+    box-sizing: border-box;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+.mytype {
+    border: 1px solid gray;
+    border-spacing: 0;
+    padding: 5px;
+}
